@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <cstdlib>           // für system()
 using namespace std;
 using namespace Eigen;
 
@@ -70,10 +71,10 @@ int main() {
     readParameters("rrdat.sec");
 
     // 2) Modell wählen
-    cout << "Modell wählen: 1=ODE, 2=DAE: ";
+    cout << "Modell waehlen: 1=ODE, 2=DAE: ";
     cin >> modelChoice;
     if (modelChoice!=1 && modelChoice!=2) {
-        cout << "Ungültig, nehme ODE (1)\n";
+        cout << "Ungueltig, nehme ODE (1)\n";
         modelChoice = 1;
     }
 
@@ -106,5 +107,22 @@ int main() {
     cout<<"Endwerte: Nm="<<Y(nSteps-1,0)
         <<", Np="<<Y(nSteps-1,1)
         <<", Vr="<<Y(nSteps-1,2)<<"\n";
+
+    // 8) Gnuplot-Skript generieren und ausführen
+    string gpFile = (modelChoice==1
+                     ? "plot_A2_1_ODE.gp"
+                     : "plot_A2_1_DAE.gp");
+    ofstream gp(gpFile);
+    gp << "reset\n"
+       << "set title 'Loesung " << (modelChoice==1 ? "ODE" : "DAE")
+          << ": Semi-implizites Euler + Extrapolation'\n"
+       << "set xlabel 't [min]'\n"
+       << "set ylabel 'Nm, Np, Vr'\n"
+       << "plot '" << out << "' using 1:2 with lines title 'Nm', \\" << "\n"
+       << "     '" << out << "' using 1:3 with lines title 'Np', \\" << "\n"
+       << "     '" << out << "' using 1:4 with lines title 'Vr'\n";
+    gp.close();
+    system((string("gnuplot ")+gpFile+" -").c_str());
+
     return 0;
 }

@@ -22,7 +22,7 @@ static double tStart, tEnd, hStep;
 static double Vplus;
 
 // ---------------------------------------------------------------------
-// Liest Parameter aus "rrdat.sec"
+// Liest Parameter aus "rr.dat"
 // Format: Key:Wert, z.B. "rho_M:800.0"
 // ---------------------------------------------------------------------
 void readParameters(const string &fname) {
@@ -100,7 +100,7 @@ void polymerDae(VectorXd &y, VectorXd &f) {
 
 int main() {
     // 1) Parameter aus Datei einlesen
-    readParameters("rrdat.sec");
+    readParameters("rr.dat");
 
     // 2) Messzeiten einlesen & prüfen
     VectorXd tDense = readExpTimes("exp.txt");
@@ -110,10 +110,10 @@ int main() {
     }
 
     // 3) Modell wählen
-    cout << "Modell auswählen (1=ODE, 2=DAE): ";
+    cout << "Modell auswaehlen (1=ODE, 2=DAE): ";
     cin >> modelChoice;
     if (!cin || (modelChoice!=1 && modelChoice!=2)) {
-        cout << "Ungültig, verwende ODE (1).\n";
+        cout << "Ungueltig, verwende ODE (1).\n";
         modelChoice = 1;
     }
 
@@ -130,13 +130,23 @@ int main() {
     // 6) Dichte Lösung berechnen
     MatrixXd Y = solver.semiimplizit_dense(y0, tStart, tEnd, tDense);
 
-    // 7) Ergebnis speichern
+    // 7) Ergebnis speichern mit Header
     string outFile = (modelChoice==1
                       ? "Loesung_A2_2_ODE.txt"
                       : "Loesung_A2_2_DAE.txt");
-    writeVectorMatrix(tDense, Y, outFile);
-    cout << "Ergebnis in '" << outFile << "' gespeichert (" 
-         << tDense.size() << " Punkte).\n";
+    ofstream out(outFile);
+    // Header-Zeile
+    out << "t\tNm\tNp\tVr\n";
+    // Daten schreiben
+    for (int i = 0; i < Y.rows(); ++i) {
+        out << tDense(i) << "\t"
+            << Y(i,0)    << "\t"
+            << Y(i,1)    << "\t"
+            << Y(i,2)    << "\n";
+    }
+    out.close();
 
+    cout << "Ergebnis in '" << outFile << "' gespeichert ("
+         << tDense.size() << " Punkte).\n";
     return 0;
 }

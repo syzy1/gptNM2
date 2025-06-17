@@ -199,7 +199,8 @@ MatrixXd Euler::semiimplizit_do(VectorXd y0, VectorXd t) {
     MatrixXd Y_dense(n, y0.size());
     for (int i = 0; i < n; ++i) {
         // Richardson-Extrapolation (Ordnung erhöhen)
-        Y_dense.row(i) = (4.0 * Y_high.row(2 * i) - Y_low.row(i)) / 3.0;
+        Y_dense.row(i) = 2.0 * Y_high.row(2*i) - Y_low.row(i);
+
     }
 
     return Y_dense;

@@ -1,0 +1,15 @@
+number_eq:3
+number_param:7	
+NM_0:0.0	
+NP_0:0.0    
+V_r_0:10  	
+t_start:0.0
+t_end:20.0
+h_steps:0.1
+n_steps:201
+rho_M:800        
+rho_P:1100        
+MW:100      
+k:0.1     
+V_r_max:20          
+V_plus:1
